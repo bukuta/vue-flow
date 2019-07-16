@@ -8,6 +8,8 @@
     @panmove="onPanMove"
     @panend="onPanEnd"
     @pancancel="onPanCancel"
+    @contextmenu="requestShowContextMenu"
+    @press="requestShowContextMenu"
   >
     <rect
       width="72"
@@ -232,6 +234,35 @@ export default {
 
   mounted() {},
   methods: {
+    requestShowContextMenu(e) {
+      console.log('requestShowContextMenu', e);
+      // Don't show native context menu
+      e.preventDefault();
+
+      // Don't tap graph on hold event
+      e.stopPropagation();
+      if (e.preventTap) { e.preventTap(); }
+      // Get mouse position
+      if (e.gesture) {
+        e = e.gesture.srcEvent; // unpack hammer.js gesture event
+      }
+
+      let x = e.x || e.clientX || 0;
+      let y = e.y || e.clientY || 0;
+      if (e.touches && e.touches.length) {
+        x = e.touches[0].clientX;
+        y = e.touches[0].clientY;
+      }
+
+      this.$emit('context-menu', {
+        element: this,
+        type: 'node',
+        x,
+        y,
+        item: this.node,
+      });
+    },
+
     inportPosition(inport, index) {
       const inports = this.inports;
       const position = inport.position || 'left';
@@ -240,6 +271,7 @@ export default {
       } if (position === 'top') {
         return `translate(${36 + (2 * index - inports.length + 1) * 5},0)`;
       }
+      return '';
     },
 
     outportPosition(outport, index) {
@@ -250,6 +282,7 @@ export default {
       } if (position === 'bottom') {
         return `translate(${36 + (2 * index - outports.length + 1) * 5},72)`;
       }
+      return '';
     },
 
     onPanStart(e) {

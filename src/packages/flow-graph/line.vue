@@ -1,7 +1,10 @@
 <template>
   <g
     :title="title"
-    class="edge">
+    class="edge"
+    @contextmenu="requestShowContextMenu"
+    @press="requestShowContextMenu"
+  >
     <path
       :d="path"
       class="edge-bg"/>
@@ -59,7 +62,41 @@ export default {
     },
   },
   mounted() {},
-  methods: {},
+  methods: {
+    requestShowContextMenu(e) {
+      console.log('requestShowContextMenu', e);
+      // Don't show native context menu
+      e.preventDefault();
+
+      // Don't tap graph on hold event
+      e.stopPropagation();
+      if (e.preventTap) { e.preventTap(); }
+      // Get mouse position
+      if (e.gesture) {
+        e = e.gesture.srcEvent; // unpack hammer.js gesture event
+      }
+
+      let x = e.x || e.clientX || 0;
+      let y = e.y || e.clientY || 0;
+      if (e.touches && e.touches.length) {
+        x = e.touches[0].clientX;
+        y = e.touches[0].clientY;
+      }
+
+      this.$emit('context-menu', {
+        element: this,
+        type: 'line',
+        x,
+        y,
+        item: {
+          ...this.line,
+          component: {
+            inports: [], outports: [],
+          },
+        },
+      });
+    },
+  },
 };
 </script>
 

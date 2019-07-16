@@ -17,10 +17,13 @@
       :height="state.height"
       class="app-svg"
       style="position: absolute; top:0; left:0;"
+      @contextmenu="requestShowContextMenu"
+      @press="requestShowContextMenu"
     >
       <g
         :transform="svgTransform"
-        class="view">
+        class="view"
+      >
         <g class="graph">
           <g class="groups">
             <g
@@ -59,7 +62,8 @@
             <vue-graph-line
               v-for="(item,index) of lines"
               :line="item"
-              :key="index"/>
+              :key="index"
+              @context-menu="doShowContextMenu"/>
           </g>
 
 
@@ -69,7 +73,9 @@
               :node="item"
               :library="libraryMap"
               :scale="state.scale"
-              :key="item.id"/>
+              :key="item.id"
+              @context-menu="doShowContextMenu"
+            />
           </g>
 
 
@@ -80,7 +86,18 @@
       <g
         class="tooltip hidden"
         transform=""/>
-      <g class="context" />
+      <g class="context" >
+        <vue-graph-menu
+          v-if="canShowMenu"
+          :actions="menuContext.actions"
+          :nodeType="menuContext.nodeType"
+          :node="menuContext.item"
+          :context="menuContext"
+          :component="menuContext.item.component"
+          @menu-action="onMenuAction"
+          @context-menu-hidden="canShowMenu=false"
+        />
+      </g>
     </svg>
 
   </div>
@@ -94,8 +111,56 @@ import graph from './data';
 import hammerhacks from './hammer';
 import VueGraphNode from './node.vue';
 import VueGraphLine from './line.vue';
+import VueGraphMenu from './menu.vue';
 
 import { assambleGraph, updateNode } from './utils';
+
+const actions = {
+  stage: [
+    {
+      action: 'create',
+      label: 'create',
+      icon: 'create',
+      fontIcon: '',
+    },
+  ],
+  node: [
+    {
+      action: 'left',
+      label: 'left',
+      icon: 'delete',
+      fontIcon: '',
+    },
+    {
+      action: 'right',
+      label: 'right',
+      icon: 'right',
+      fontIcon: '',
+    },
+    {
+      action: 'bottom',
+      label: 'bottom',
+      icon: 'bottom',
+      fontIcon: '',
+    },
+    {
+      action: 'top',
+      label: 'top',
+      icon: 'top',
+      fontIcon: '',
+    },
+  ],
+  line: [
+    {
+      action: 'bottom',
+      label: 'bottom',
+      icon: 'bottom',
+      fontIcon: '',
+    },
+
+  ],
+
+};
 
 // const graph2 = assambleGraph(graph, { nodeWidth: 72, nodeHeight: 72 });
 
@@ -103,6 +168,7 @@ export default {
   components: {
     VueGraphNode,
     VueGraphLine,
+    VueGraphMenu,
 
   },
   props: {
@@ -128,6 +194,15 @@ export default {
   },
   data() {
     return {
+      canShowMenu: false,
+      menuContext: {
+        component: null,
+        actions: [],
+        nodeType: 'node', // node/line
+        node: null,
+        x: 0,
+        y: 0,
+      },
       zoomFactor: 0,
       zoomX: 0,
       zoomY: 0,
@@ -195,6 +270,7 @@ export default {
     },
   },
 
+
   mounted() {
     this.bgContext = this.$refs.backgroundCanvas.getContext('2d');
 
@@ -212,6 +288,54 @@ export default {
     // this.renderCanvas();
   },
   methods: {
+    requestShowContextMenu(e) {
+      console.log('showContext', e);
+      // Don't show native context menu
+      e.preventDefault();
+
+      // Don't tap graph on hold event
+      e.stopPropagation();
+      if (e.preventTap) { e.preventTap(); }
+      // Get mouse position
+      if (e.gesture) {
+        e = e.gesture.srcEvent; // unpack hammer.js gesture event
+      }
+
+      let x = e.x || e.clientX || 0;
+      let y = e.y || e.clientY || 0;
+      if (e.touches && e.touches.length) {
+        x = e.touches[0].clientX;
+        y = e.touches[0].clientY;
+      }
+
+      // App.showContext
+
+      this.doShowContextMenu({
+        element: this,
+        nodeType: 'stage',
+        x,
+        y,
+        item: {
+          component: {
+            inports: [],
+            outports: [],
+          },
+        },
+      });
+    },
+    doShowContextMenu(data) {
+      console.log('doShowContextMenu', data);
+      const nodeType = data.type;
+      this.menuContext = {
+        ...this.menuContext,
+        ...data,
+        actions: actions[nodeType],
+      };
+      this.canShowMenu = true;
+    },
+    onMenuAction(action) {
+      console.log('onMenuAction', action);
+    },
     emitUpdate() {
       const {
         x, y, scale, width, height,
