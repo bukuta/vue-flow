@@ -7,8 +7,7 @@
       @updateMap="updateMap"
     />
     <graph-nav
-      :width="200"
-      :height="120"
+      :options="options"
       :graph ="graph"
       :viewport="viewport"
     />
@@ -47,6 +46,21 @@ export default {
         windowWidth: 100,
         windowHeight: 100,
       },
+      options: {
+        width: 216,
+        height: 162,
+        hidden: false, // FIXME: drop??
+        backgroundColor: 'hsla(184, 8%, 75%, 0.9)',
+        outsideFill: 'hsla(0, 0%, 0%, 0.4)',
+        nodeSize: 60,
+        nodeLineWidth: 1,
+        viewrectangle: [0, 0, 0, 0],
+        viewscale: 1.0,
+        viewBoxBorder: 'hsla(190, 100%, 80%, 0.4)',
+        viewBoxBorder2: 'hsla( 10,  60%, 32%, 0.3)',
+        viewBoxBorderStyle: 'solid',
+        // graph: Utils.wrapScenario(data.data.scenes[0].graph),
+      },
     };
   },
 
@@ -61,6 +75,8 @@ export default {
     updateMap(data) {
       console.log('updateMap', data);
       this.viewport = { ...this.viewport, ...data };
+      this.options.viewrectangle = [this.viewport.x * -1, this.viewport.y * -1, this.viewport.windowWidth, this.viewport.windowHeight];
+      this.options.viewscale = this.viewport.scale;
     },
   },
 

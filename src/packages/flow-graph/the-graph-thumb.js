@@ -101,6 +101,7 @@ function renderThumbnail(context, graph, properties) {
       }
     });
   }
+
   if (graph.outports) {
     Object.keys(graph.outports).forEach((key) => {
       const exp = graph.outports[key];
@@ -130,6 +131,7 @@ function renderThumbnail(context, graph, properties) {
   maxY += properties.nodeSize * 2;
   const w = maxX - minX;
   const h = maxY - minY;
+
   // For the-graph-nav to bind
   const thumbrectangle = [];
   thumbrectangle[0] = minX;
