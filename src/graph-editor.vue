@@ -3,8 +3,10 @@
     <flow-graph
       :config="config"
       :graph = "graph"
+      :actions="actions"
       style="position: absolute; width: 100%; height: 100%; top:0; left:0;"
       @updateMap="updateMap"
+      @action="onAction"
     />
     <graph-nav
       :options="options"
@@ -19,6 +21,8 @@ import FlowGraph from './packages/flow-graph/index.vue';
 import * as Utils from './utils';
 import GraphNav from './packages/flow-graph/nav.vue';
 
+import configs from './configs';
+
 const data = require('./data.json');
 
 console.log(data);
@@ -28,10 +32,10 @@ export default {
   components: {
     FlowGraph,
     GraphNav,
-
   },
   data() {
     return {
+      actions: configs.actions,
       config: {
         width: 800,
         height: 600,
@@ -70,8 +74,33 @@ export default {
       const unwraped = Utils.wrapScenario(this.scenario.scenes[0].graph);
       return unwraped;
     },
+
+    payloads() {
+      return this.scenario.scenes[0].quizList;
+    },
   },
   methods: {
+    onAction(action) {
+      console.log('onAction', action);
+      if (action.action === 'create') {
+        this.onCreate();
+      }
+    },
+    onCreate() {
+      // dialogs;//
+      // 选择节点类型，
+      // 填写表单
+      // 创建节点
+      // 添加到graph中
+      const node = {
+        component: configs.components[0],
+        label: 'new node',
+        metadata: {
+          x: 0, y: 0, width: 72, height: 72,
+        },
+      };
+      this.graph.nodes.push(node);
+    },
     updateMap(data) {
       console.log('updateMap', data);
       this.viewport = { ...this.viewport, ...data };

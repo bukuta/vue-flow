@@ -254,84 +254,99 @@ function buildLines(graph, option) {
         break;
       }
 
-      const CURVE = 50;
-
-      let c1X;
-      let c1Y;
-      let c2X;
-      let c2Y;
-      if (targetY - 5 < sourceY) {
-        const curveFactor = (sourceY - targetY) * CURVE / 200;
-        if (Math.abs(targetX - sourceX) < nodeSize / 2) {
-          // Loopback
-          c1X = sourceX - curveFactor;
-          c1Y = sourceY + curveFactor;
-          c2X = targetX - curveFactor;
-          c2Y = targetY - curveFactor;
-        } else {
-          // Stick out some
-          c1X = sourceX + curveFactor;
-          c1Y = sourceY + (targetY > sourceY ? curveFactor : -curveFactor);
-          c2X = targetX - curveFactor;
-          c2Y = targetY + (targetY > sourceY ? -curveFactor : curveFactor);
-        }
-      } else {
-        // Controls halfway between
-        c1X = sourceX;// + (targetX - sourceX) / 2;
-        c1Y = sourceY + (targetY - sourceY) / 2;
-        c2X = targetX;// - (targetX - sourceX) / 5;
-        // c2Y = targetY;
-        c2Y = sourceY + (targetY - sourceY) * 3 / 4;
-      }
-
-      // Make SVG path
-
-      let path = createEdgePathArray(sourceX, sourceY, c1X, c1Y, c2X, c2Y, targetX, targetY);
-      path = path.join(' ');
-
-      const epsilon = 0.01;
-      let center = findPointOnCubicBezier(0.5, sourceX, sourceY, c1X, c1Y, c2X, c2Y, targetX, targetY);
-      function getShiftedPoint(epsilon) {
-        return findPointOnCubicBezier(
-          0.5 + epsilon, sourceX, sourceY, c1X, c1Y, c2X, c2Y, targetX, targetY,
-        );
-      }
-      const plus = getShiftedPoint(epsilon);
-      const minus = getShiftedPoint(-epsilon);
-      const m = 1 * (plus[1] - minus[1]) / (plus[0] - minus[0]);
-      const b = center[1] - (m * center[0]);
-
-      // find point on line y = mx + b that is `offset` away from x,y
-
-
-      let arrowLength = 12;
-      // Which direction should arrow point
-      if (plus[0] > minus[0]) {
-        arrowLength *= -1;
-      }
-      center = findLinePoint(center[0], center[1], m, b, -1 * arrowLength / 2);
-
-      // find points of perpendicular line length l centered at x,y
-
-      const points = perpendicular(center[0], center[1], m, arrowLength * 0.9);
-      // For m === 0, figure out if arrow should be straight up or down
-      const flip = plus[1] > minus[1] ? -1 : 1;
-      const arrowTip = findLinePoint(center[0], center[1], m, b, arrowLength, flip);
-      points.push(arrowTip);
-
-      const pointsArray = points.map(point => point.join(',')).join(' ');
-
-      return {
-        from,
-        metadata,
-        to,
-        data,
-        path,
-        points: pointsArray,
-      };
+      return buildLine({ x: sourceX, y: sourceY }, { x: targetX, y: targetY }, option);
     });
   return lines;
 }
+
+function buildLine(startPosition, targetPosition, option = { nodeSize: 72 }) {
+  const nodeSize = option.nodeWidth;
+
+  const route = 0;
+
+  // Organic / curved edge
+  const sourceX = startPosition.x;
+  const sourceY = startPosition.y;
+  const targetX = targetPosition.x;
+  const targetY = targetPosition.y;
+
+  const CURVE = 50;
+
+  let c1X;
+  let c1Y;
+  let c2X;
+  let c2Y;
+  if (targetY - 5 < sourceY) {
+    const curveFactor = (sourceY - targetY) * CURVE / 200;
+    if (Math.abs(targetX - sourceX) < nodeSize / 2) {
+      // Loopback
+      c1X = sourceX - curveFactor;
+      c1Y = sourceY + curveFactor;
+      c2X = targetX - curveFactor;
+      c2Y = targetY - curveFactor;
+    } else {
+      // Stick out some
+      c1X = sourceX + curveFactor;
+      c1Y = sourceY + (targetY > sourceY ? curveFactor : -curveFactor);
+      c2X = targetX - curveFactor;
+      c2Y = targetY + (targetY > sourceY ? -curveFactor : curveFactor);
+    }
+  } else {
+    // Controls halfway between
+    c1X = sourceX;// + (targetX - sourceX) / 2;
+    c1Y = sourceY + (targetY - sourceY) / 2;
+    c2X = targetX;// - (targetX - sourceX) / 5;
+    // c2Y = targetY;
+    c2Y = sourceY + (targetY - sourceY) * 3 / 4;
+  }
+
+  // Make SVG path
+
+  let path = createEdgePathArray(sourceX, sourceY, c1X, c1Y, c2X, c2Y, targetX, targetY);
+  path = path.join(' ');
+
+  const epsilon = 0.01;
+  let center = findPointOnCubicBezier(0.5, sourceX, sourceY, c1X, c1Y, c2X, c2Y, targetX, targetY);
+  function getShiftedPoint(epsilon) {
+    return findPointOnCubicBezier(
+      0.5 + epsilon, sourceX, sourceY, c1X, c1Y, c2X, c2Y, targetX, targetY,
+    );
+  }
+  const plus = getShiftedPoint(epsilon);
+  const minus = getShiftedPoint(-epsilon);
+  const m = 1 * (plus[1] - minus[1]) / (plus[0] - minus[0]);
+  const b = center[1] - (m * center[0]);
+
+  // find point on line y = mx + b that is `offset` away from x,y
+
+
+  let arrowLength = 12;
+  // Which direction should arrow point
+  if (plus[0] > minus[0]) {
+    arrowLength *= -1;
+  }
+  center = findLinePoint(center[0], center[1], m, b, -1 * arrowLength / 2);
+
+  // find points of perpendicular line length l centered at x,y
+
+  const points = perpendicular(center[0], center[1], m, arrowLength * 0.9);
+  // For m === 0, figure out if arrow should be straight up or down
+  const flip = plus[1] > minus[1] ? -1 : 1;
+  const arrowTip = findLinePoint(center[0], center[1], m, b, arrowLength, flip);
+  points.push(arrowTip);
+
+  const pointsArray = points.map(point => point.join(',')).join(' ');
+
+  return {
+    from: {},
+    metadata: { route },
+    to: {},
+    data: null,
+    path,
+    points: pointsArray,
+  };
+}
+
 
 function libraryFromGraph({
   nodes, edges, inports, outports,
