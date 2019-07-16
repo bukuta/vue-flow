@@ -1,0 +1,75 @@
+{
+  "name": "ivr-front",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "serve": "vue-cli-service serve",
+    "build": "vue-cli-service build",
+    "lint": "vue-cli-service lint"
+  },
+  "dependencies": {
+    "@babel/plugin-proposal-class-properties": "^7.0.0-beta.51",
+    "axios": "^0.18.0",
+    "babel-register": "^6.26.0",
+    "color-hash": "^1.0.3",
+    "cron-parser": "^2.7.3",
+    "dagre": "^0.8.4",
+    "debug": "^4.1.1",
+    "echarts": "^4.2.0-rc.2",
+    "element-ui": "^2.8.2",
+    "expr-eval": "^1.2.2",
+    "font-awesome": "^4.7.0",
+    "hammerjs": "^2.0.8",
+    "js-sql-parser": "^1.0.7",
+    "jsep": "^0.3.4",
+    "less": "^3.0.4",
+    "less-loader": "^4.1.0",
+    "lodash": "^4.17.11",
+    "lz-string": "^1.4.4",
+    "moment": "^2.22.2",
+    "monaco-editor": "^0.14.3",
+    "node-sass": "^4.12.0",
+    "portal-vue": "^2.1.3",
+    "sass-loader": "^7.1.0",
+    "vue": "^2.5.16",
+    "vue-router": "^3.0.1",
+    "vuedraggable": "^2.16.0",
+    "vuex": "^3.0.1",
+    "wavesurfer.js": "^2.1.0"
+  },
+  "devDependencies": {
+    "@vue/cli-plugin-babel": "^3.0.0-beta.15",
+    "@vue/cli-plugin-eslint": "^3.0.0-beta.15",
+    "@vue/cli-service": "^3.0.0-beta.15",
+    "eslint-config-airbnb": "^17.1.0",
+    "eslint-import-resolver-webpack": "^0.11.0",
+    "eslint-plugin-import": "^2.16.0",
+    "eslint-plugin-jsx-a11y": "^6.2.0",
+    "eslint-plugin-react": "^7.12.4",
+    "vue-template-compiler": "^2.5.16"
+  },
+  "eslintConfig": {
+    "root": true,
+    "env": {
+      "node": true
+    },
+    "extends": [
+      "plugin:vue/essential",
+      "eslint:recommended"
+    ],
+    "rules": {},
+    "parserOptions": {
+      "parser": "babel-eslint"
+    }
+  },
+  "postcss": {
+    "plugins": {
+      "autoprefixer": {}
+    }
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not ie <= 8"
+  ]
+}
