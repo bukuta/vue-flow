@@ -275,7 +275,7 @@ export default {
       } else if (this.edgePreviewType !== data.type) {
         this.isEdgePreview = false;
         this.edgePreviewType = '';
-        window.removeEventListener('mousemove', this.mousemoveover(data));
+        this.mousemoveover(data);
       }
     },
     mousemove(e, data) {
@@ -321,7 +321,6 @@ export default {
         this.isEdgePreview = false;
         this.edgePreviewType = '';
         this.previewLine = {};
-        window.removeEventListener('mousemove', this.mousemoveover());
       }
     },
     screenPosition2StagePosition({ x, y }) {
