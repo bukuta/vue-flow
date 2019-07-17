@@ -80,6 +80,7 @@
               :scale="state.scale"
               :key="item.id"
               @context-menu="doShowContextMenu"
+              @edge-start="edgeStart"
             />
           </g>
 
@@ -118,7 +119,7 @@ import VueGraphNode from './node.vue';
 import VueGraphLine from './line.vue';
 import VueGraphMenu from './menu.vue';
 
-import { assambleGraph, updateNode } from './utils';
+import { assambleGraph, updateNode, buildLine } from './utils';
 
 
 // const graph2 = assambleGraph(graph, { nodeWidth: 72, nodeHeight: 72 });
@@ -160,6 +161,7 @@ export default {
   data() {
     return {
       isEdgePreview: false,
+      edgePreviewType: '',
       previewLine: {},
       canShowMenu: false,
       menuContext: {
@@ -255,6 +257,32 @@ export default {
     // this.renderCanvas();
   },
   methods: {
+    edgeStart(data) {
+      if (!this.isEdgePreview) {
+        this.edgePreviewType = data.type;
+        this.isEdgePreview = true;
+        window.addEventListener('mousemove', e => this.mousemove(e, data));
+      } else if (this.edgePreviewType !== data.type) {
+        this.isEdgePreview = false;
+        this.edgePreviewType = '';
+        window.removeEventListener('mousemove', this.mousemoveover(data));
+      }
+    },
+    mousemove(e, data) {
+      let x = e.x || e.clientX || 0;
+      let y = e.y || e.clientY || 0;
+      if (e.touches && e.touches.length) {
+        x = e.touches[0].clientX;
+        y = e.touches[0].clientY;
+      }
+      const startPosition = { x: data.x, y: data.y };
+      const endPosition = { x, y };
+      console.log(startPosition);
+      this.previewLine = buildLine(startPosition, endPosition);
+    },
+    mousemoveover(data) {
+      this.graph.lines.push(this.previewLine);
+    },
     requestShowContextMenu(e) {
       console.log('showContext', e);
       // Don't show native context menu
