@@ -244,10 +244,13 @@ export default {
 
   mounted() {
     this.init();
-    const onresize = _.throttle(this.init.bind(this), 500, { trailing: true, leading: true });
+    this.onresize = _.throttle(this.init.bind(this), 500, { trailing: true, leading: true });
 
-    window.addEventListener('resize', onresize);
+    window.addEventListener('resize', this.onresize);
     // this.renderCanvas();
+  },
+  beforeDestroy() {
+    window.removeEventListener('resize', this.onresize);
   },
   methods: {
     init() {
