@@ -13,6 +13,26 @@
       :graph ="graph"
       :viewport="viewport"
     />
+    <div style="position: absolute;">
+      <el-button
+        type="text"
+        @click="dialogVisible = true">点击打开 Dialog</el-button>
+    </div>
+
+    <el-dialog
+      :visible.sync="dialogVisible"
+      title="提示"
+      width="30%">
+      <span>这是一段信息</span>
+      <span
+        slot="footer"
+        class="dialog-footer">
+        <el-button @click="dialogVisible = false">取 消</el-button>
+        <el-button
+          type="primary"
+          @click="dialogVisible = false">确 定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -33,8 +53,10 @@ export default {
     FlowGraph,
     GraphNav,
   },
+
   data() {
     return {
+      dialogVisible: false,
       actions: configs.actions,
       config: {
         width: 800,
@@ -83,10 +105,10 @@ export default {
     onAction(action) {
       console.log('onAction', action);
       if (action.action === 'create') {
-        this.onCreate();
+        this.onCreate(action.context);
       }
     },
-    onCreate() {
+    onCreate(context) {
       // dialogs;//
       // 选择节点类型，
       // 填写表单
@@ -96,7 +118,7 @@ export default {
         component: configs.components[0],
         label: 'new node',
         metadata: {
-          x: 0, y: 0, width: 72, height: 72,
+          x: context.x - 72 / 2, y: context.y - 72 / 2, width: 72, height: 72,
         },
       };
       this.graph.nodes.push(node);

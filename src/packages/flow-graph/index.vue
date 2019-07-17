@@ -177,9 +177,6 @@ export default {
         currentMovingNode: '',
         minZoom: 0.15,
         maxZoom: 15.0,
-        offsetX: 0.0,
-        offsetY: 0.0,
-
         scale: 1,
         width: 500,
         height: 300,
@@ -302,8 +299,12 @@ export default {
       this.canShowMenu = true;
     },
     onMenuAction(action) {
-      console.log('onMenuAction', action);
-      this.$emit('action', action);
+      const { x, y } = this.menuContext;
+      const { scale } = this.state;
+      const tx = (x - this.state.x) / scale;
+      const ty = (y - this.state.y) / scale;
+
+      this.$emit('action', { ...action, context: { x: tx, y: ty } });
       this.canShowMenu = false;
     },
     emitUpdate() {
