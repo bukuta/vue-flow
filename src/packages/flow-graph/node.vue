@@ -66,7 +66,8 @@
         :title="outport.naame"
         :key="outport.name"
         :transform="outportPosition(outport,index)"
-        class="port arrow">
+        class="port arrow"
+        @click="(e) => edgeStart(e, outport)">
         <circle
           r="5"
           class="port-circle-bg"/>
@@ -234,6 +235,102 @@ export default {
 
   mounted() {},
   methods: {
+    edgeStart(e, outport) {
+      const edgeStartEvent = new CustomEvent('the-graph-edge-start', {
+        detail: {
+          isIn: false,
+          port: { port: 'element', process: this.node.id, type: 'all' },
+          // process: outport.processKey,
+          route: this.node.metadata.route || '10',
+        },
+        bubbles: true,
+      });
+      this.test(e.currentTarget, edgeStartEvent);
+    },
+    test(e, event) {
+      // Forwarded from App.edgeStart()
+
+      // Port that triggered this
+      const port = event.detail.port;
+
+      // Complete edge if this is the second tap and ports are compatible
+      if (this.state.edgePreview && this.state.edgePreview.isIn !== event.detail.isIn) {
+        // TODO also check compatible types
+        const halfEdge = this.state.edgePreview;
+        if (event.detail.isIn) {
+          halfEdge.to = port;
+        } else {
+          halfEdge.from = port;
+        }
+        this.addEdge(halfEdge);
+        this.cancelPreviewEdge();
+        return;
+      }
+
+      let edge;
+      if (event.detail.isIn) {
+        edge = { to: port };
+      } else {
+        edge = { from: port };
+      }
+      edge.isIn = event.detail.isIn;
+      edge.metadata = { route: event.detail.route };
+      edge.type = event.detail.port.type;
+
+
+      // const appDomNode = ReactDOM.findDOMNode(this.props.app);
+      e.addEventListener('mousemove', this.renderPreviewEdge());
+      e.addEventListener('panmove', this.renderPreviewEdge());
+      // TODO tap to add new node here
+      e.addEventListener('tap', this.cancelPreviewEdge(e));
+    },
+    cancelPreviewEdge(e) {
+      e.removeEventListener('mousemove', this.renderPreviewEdge);
+      e.removeEventListener('panmove', this.renderPreviewEdge);
+      e.removeEventListener('tap', this.cancelPreviewEdge);
+      // if (this.state.edgePreview) {
+      //   this.setState({edgePreview: null});
+      //   this.markDirty();
+      // }
+    },
+    renderPreviewEdge() {
+      console.log(this.node);
+      if (this.node && this.node.gesture) {
+        this.node = this.node.gesture.srcEvent; // unpack hammer.js gesture this.node
+      }
+
+      let x = this.node.metadata.x || this.node.metadata.clientX || 0;
+      let y = this.node.metadata.y || this.node.metadata.clientY || 0;
+      if (this.node.touches && this.node.touches.length) {
+        x = this.node.touches[0].clientX;
+        y = this.node.touches[0].clientY;
+      }
+
+      // x -= this.props.app.state.offsetX || 0;
+      // y -= this.props.app.state.offsetY || 0;
+      // const scale = this.props.app.state.scale;
+      // this.setState({
+      //   edgePreviewX: (x - this.props.app.state.x) / scale,
+      //   edgePreviewY: (y - this.props.app.state.y) / scale,
+      // });
+      this.markDirty();
+    },
+    markDirty(event) {
+      // if (event && event.libraryDirty) {
+      //   this.libraryDirty = true;
+      // }
+      window.requestAnimationFrame(this.triggerRender);
+    },
+    triggerRender (time) {
+      if (!this.mounted) {
+        return;
+      }
+      if (this.dirty) {
+        return;
+      }
+      this.dirty = true;
+      this.forceUpdate();
+    },
     requestShowContextMenu(e) {
       console.log('requestShowContextMenu', e);
       // Don't show native context menu
