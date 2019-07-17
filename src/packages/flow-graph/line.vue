@@ -37,7 +37,7 @@ export default {
         return {
           src: {},
           tgt: {},
-          metadata: {},
+          metadata: { route: 0 },
           data: {},
           path: '',
           points: '',
@@ -49,6 +49,7 @@ export default {
     return {};
   },
   computed: {
+    // todo Error: <polygon> attribute points: Expected number, "NaN,NaN NaN,NaN …".
     points() {
       return this.line.points;
       // return '450.5487755999688,413.1465010497996 442.04860179758754,419.8088613919989 453.7013113012219,425.92231877910075';

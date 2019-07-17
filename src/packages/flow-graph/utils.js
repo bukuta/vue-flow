@@ -1,4 +1,5 @@
 import _ from 'lodash';
+// import { start } from 'repl';
 import * as geometryutils from './geometryutils';
 
 const result = {
@@ -561,4 +562,5 @@ export {
   groupRects,
   updateNode,
   buildLines,
+  buildLine,
 };

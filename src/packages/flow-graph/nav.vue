@@ -13,8 +13,11 @@
       :height="height"
     />
   </div> -->
-  
-  <div :style="wrapperStyle" class="graph-nav" ref="topelement">
+
+  <div
+    ref="topelement"
+    :style="wrapperStyle"
+    class="graph-nav">
     <div
       ref="viewboxelement"
       :style="viewboxDiv"
@@ -276,7 +279,7 @@ export default {
       this.hammer = new Hammer.Manager(this.topElement, {
         recognizers: [[Hammer.Tap], [Hammer.Pan, { direction: Hammer.DIRECTIONALL }]],
       });
-      console.log(this.hammer)
+      console.log(this.hammer);
       this.hammer.on(
         'tap',
         (event) => {

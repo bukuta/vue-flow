@@ -19,6 +19,7 @@
       style="position: absolute; top:0; left:0;"
       @contextmenu="requestShowContextMenu"
       @press="requestShowContextMenu"
+      @click="cancelEdgeStart"
     >
       <g
         :transform="svgTransform"
@@ -66,7 +67,7 @@
               @context-menu="doShowContextMenu"/>
 
             <vue-graph-line
-              v-if="isEdgePreview"
+              v-if="isStartEdge"
               :line="previewLine"
             />
           </g>
@@ -112,6 +113,7 @@
 <script>
 import Hammer from 'hammerjs';
 
+import _ from 'lodash';
 import graph from './data';
 
 import hammerhacks from './hammer';
@@ -229,6 +231,9 @@ export default {
       });
       return map;
     },
+    isStartEdge() {
+      return this.isEdgePreview && this.previewLine.metadata;
+    },
   },
   watch: {
     state() {
@@ -238,26 +243,31 @@ export default {
 
 
   mounted() {
-    this.bgContext = this.$refs.backgroundCanvas.getContext('2d');
+    this.init();
+    const onresize = _.throttle(this.init.bind(this), 500, { trailing: true, leading: true });
 
-    this.didMounted();
-
-    const el = this.$refs.flowGraph;
-    console.log(el.clientWidth);
-    this.state.width = el.clientWidth;
-    this.state.height = el.clientHeight;
-    this.$nextTick(() => {
-      console.log(this.state);
-      this.renderCanvas();
-      this.emitUpdate();
-    });
+    window.addEventListener('resize', onresize);
     // this.renderCanvas();
   },
   methods: {
+    init() {
+      this.bgContext = this.$refs.backgroundCanvas.getContext('2d');
+
+      this.didMounted();
+
+      const el = this.$refs.flowGraph;
+      this.state.width = el.clientWidth;
+      this.state.height = el.clientHeight;
+      this.$nextTick(() => {
+        this.renderCanvas();
+        this.emitUpdate();
+      });
+    },
     edgeStart(data) {
       if (!this.isEdgePreview) {
         this.edgePreviewType = data.type;
         this.isEdgePreview = true;
+        this.startNode = data.node;
         window.addEventListener('mousemove', e => this.mousemove(e, data));
       } else if (this.edgePreviewType !== data.type) {
         this.isEdgePreview = false;
@@ -272,13 +282,50 @@ export default {
         x = e.touches[0].clientX;
         y = e.touches[0].clientY;
       }
-      const startPosition = { x: data.x, y: data.y };
-      const endPosition = { x, y };
-      console.log(startPosition);
+
+      const startPosition = this.screenPosition2StagePosition({ x: data.x, y: data.y });
+      const endPosition = this.screenPosition2StagePosition({ x, y });
+
       this.previewLine = buildLine(startPosition, endPosition);
     },
     mousemoveover(data) {
+      console.log(this.previewLine);
+      const edge = {
+        description: null,
+        from: {
+          node: this.startNode.id,
+          nodeElement: this.startNode,
+          port: this.edgePreviewType === 'outport' ? 'out' : 'in',
+        },
+        name: null,
+        metadata: {
+          description: null,
+          name: null,
+          route: '0',
+          when: null,
+        },
+        to: {
+          node: data.node.id,
+          nodeElement: data.node,
+          port: data.type === 'outport' ? 'out' : 'in',
+        },
+      };
       this.graph.lines.push(this.previewLine);
+      this.graph.edges.push(edge);
+    },
+    cancelEdgeStart() {
+      if (this.isEdgePreview) {
+        this.isEdgePreview = false;
+        this.edgePreviewType = '';
+        this.previewLine = {};
+        window.removeEventListener('mousemove', this.mousemoveover());
+      }
+    },
+    screenPosition2StagePosition({ x, y }) {
+      const { scale } = this.state;
+      const tx = (x - this.state.x) / scale;
+      const ty = (y - this.state.y) / scale;
+      return { x: tx, y: ty };
     },
     requestShowContextMenu(e) {
       console.log('showContext', e);
