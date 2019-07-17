@@ -46,7 +46,7 @@
           r="5"
           class="port-circle-bg" />
         <path
-          d="M 2.4492935982947064e-16 -4 A 4 4 0 0 0 2.4492935982947064e-16 4"
+          d="M 4 0 A 4 4 0 0 0 -4 0"
           class="port-arc"
         />
         <circle
@@ -54,7 +54,7 @@
           class="port-circle-small fill "
           r="2.5"/>
         <text
-          x="5"
+          y="6"
           class="port-label drag"
           style="font-size: 5.625px;">{{ inport.name }}</text>
       </g>
@@ -72,7 +72,7 @@
           r="5"
           class="port-circle-bg"/>
         <path
-          d="M 2.4492935982947064e-16 4 A 4 4 0 0 0 2.4492935982947064e-16 -4"
+          d="M -4 0 A 4 4 0 0 0 4 0"
           class="port-arc"
         />
         <circle
@@ -80,7 +80,7 @@
           class="port-circle-small fill route9"
           r="2.5"/>
         <text
-          x="-5"
+          y="-6"
           style="font-size: 5.625px;"
           class="port-label drag">{{ outport.name }}</text>
       </g>
@@ -481,10 +481,11 @@ export default {
   .inports {
     .port-label {
       text-anchor: start;
+      text-anchor: middle;
     }
   }
   .outports .port-label {
-    text-anchor: end;
+    text-anchor: middle;
   }
   .port-label {
     fill: #0c0d0e;

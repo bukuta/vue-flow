@@ -133,7 +133,7 @@
             <text
               x="45"
               y="-5"
-              class="icon context-icon context-node-info-icon"></text>
+              class="icon context-icon context-node-info-icon">{{ actionRight.fontIcon }}</text>
             <text
               x="45"
               y="15"

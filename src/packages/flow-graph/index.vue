@@ -64,6 +64,11 @@
               :line="item"
               :key="index"
               @context-menu="doShowContextMenu"/>
+
+            <vue-graph-line
+              v-if="isEdgePreview"
+              :line="previewLine"
+            />
           </g>
 
 
@@ -115,52 +120,6 @@ import VueGraphMenu from './menu.vue';
 
 import { assambleGraph, updateNode } from './utils';
 
-const actions = {
-  stage: [
-    {
-      action: 'create',
-      label: 'create',
-      icon: 'create',
-      fontIcon: '',
-    },
-  ],
-  node: [
-    {
-      action: 'left',
-      label: 'left',
-      icon: 'delete',
-      fontIcon: '',
-    },
-    {
-      action: 'right',
-      label: 'right',
-      icon: 'right',
-      fontIcon: '',
-    },
-    {
-      action: 'bottom',
-      label: 'bottom',
-      icon: 'bottom',
-      fontIcon: '',
-    },
-    {
-      action: 'top',
-      label: 'top',
-      icon: 'top',
-      fontIcon: '',
-    },
-  ],
-  line: [
-    {
-      action: 'bottom',
-      label: 'bottom',
-      icon: 'bottom',
-      fontIcon: '',
-    },
-
-  ],
-
-};
 
 // const graph2 = assambleGraph(graph, { nodeWidth: 72, nodeHeight: 72 });
 
@@ -172,6 +131,12 @@ export default {
 
   },
   props: {
+    actions: {
+      type: Object,
+      default() {
+        return {};
+      },
+    },
     graph: {
       type: Object,
       default() {
@@ -194,6 +159,8 @@ export default {
   },
   data() {
     return {
+      isEdgePreview: false,
+      previewLine: {},
       canShowMenu: false,
       menuContext: {
         component: null,
@@ -312,10 +279,11 @@ export default {
 
       this.doShowContextMenu({
         element: this,
-        nodeType: 'stage',
+        type: 'stage',
         x,
         y,
         item: {
+          name: '流程图',
           component: {
             inports: [],
             outports: [],
@@ -329,12 +297,14 @@ export default {
       this.menuContext = {
         ...this.menuContext,
         ...data,
-        actions: actions[nodeType],
+        actions: this.actions[nodeType],
       };
       this.canShowMenu = true;
     },
     onMenuAction(action) {
       console.log('onMenuAction', action);
+      this.$emit('action', action);
+      this.canShowMenu = false;
     },
     emitUpdate() {
       const {
@@ -504,6 +474,7 @@ export default {
       };
       this.emitUpdate();
     },
+
     unselectAll(event) {
       // No arguments = clear selection
       this.config.onNodeSelection();
