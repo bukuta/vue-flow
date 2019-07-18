@@ -187,7 +187,7 @@ const findNodeFit = function findNodeFit(node, width, height, sizeLimit) {
   };
 };
 
-module.exports = {
+export {
   findMinMax,
   findNodeFit,
   findFit,

@@ -5,6 +5,7 @@ console.log(FONT_AWESOME);
 const components = [
   {
     name: 'start',
+    description: '开始节点',
     icon: 'circle-o',
     inports: [
     ],
@@ -18,6 +19,7 @@ const components = [
   },
   {
     name: 'stop',
+    description: '结束节点',
     icon: 'stop-circle',
     inports: [
       {
@@ -29,6 +31,7 @@ const components = [
   },
   {
     name: 'action',
+    description: '动作节点',
     icon: 'cogs',
     inports: [
       {
@@ -47,6 +50,7 @@ const components = [
   },
   {
     name: 'transfer',
+    description: '转接节点',
     icon: 'exchange',
     inports: [
       {
@@ -65,6 +69,7 @@ const components = [
   },
   {
     name: 'assignment',
+    description: '赋值节点',
     icon: 'code',
     inports: [
       {
@@ -83,6 +88,7 @@ const components = [
   },
   {
     name: 'empty',
+    description: '空节点',
     icon: 'dot-circle-o',
     inports: [
       {
@@ -101,7 +107,8 @@ const components = [
   },
   {
     name: 'trigger',
-    icon: '',
+    description: '事件触发节点',
+    icon: 'lightbulb-o',
     inports: [
       {
         name: 'in',

@@ -92,7 +92,9 @@ export default {
         item: {
           ...this.line,
           component: {
-            inports: [], outports: [],
+            icon: 'long-arrow-right',
+            inports: [],
+            outports: [],
           },
         },
       });

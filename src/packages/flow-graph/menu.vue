@@ -178,7 +178,7 @@
           height="48"
           rx="8"
           ry="8"/>
-        <text class="icon context-node-icon"></text>
+        <text class="icon context-node-icon">{{ componentFontIcon }}</text>
       </g>
     </g>
   </g>
@@ -186,6 +186,7 @@
 
 <script>
 /* eslint-disable max-len */
+import FONT_AWESOME from '../../font-awesome-unicode-map.js';
 
 export default {
   name: 'GraphMenu',
@@ -221,21 +222,21 @@ export default {
         ];
       },
     },
-    component: {
-      type: Object,
-      default() {
-        return {
-          name: 'action',
-          icon: 'address-book',
-          inports: [
+    // component: {
+    //   type: Object,
+    //   default() {
+    //     return {
+    //       name: 'action',
+    //       icon: 'address-book',
+    //       inports: [
 
-          ],
-          outports: [
+    //       ],
+    //       outports: [
 
-          ],
-        };
-      },
-    },
+    //       ],
+    //     };
+    //   },
+    // },
     nodeType: {
       type: String,
       default: 'node',
@@ -260,6 +261,12 @@ export default {
     transform() {
       const { x, y } = this.context;
       return `translate(${x},${y})`;
+    },
+    component() {
+      return this.context.item.component;
+    },
+    componentFontIcon() {
+      return FONT_AWESOME[this.component.icon];
     },
     // 1: Bottom
     // 2: Left, Right

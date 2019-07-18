@@ -13,24 +13,21 @@
       :graph ="graph"
       :viewport="viewport"
     />
-    <div style="position: absolute;">
-      <el-button
-        type="text"
-        @click="dialogVisible = true">点击打开 Dialog</el-button>
-    </div>
 
     <el-dialog
-      :visible.sync="dialogVisible"
-      title="提示"
-      width="30%">
-      <span>这是一段信息</span>
+      :visible.sync="isAddingNode"
+      title="添加节点"
+      append-to-body
+      class="dialog-node-form"
+      width="600px">
+      <node-form ref="nodeForm"/>
       <span
         slot="footer"
         class="dialog-footer">
-        <el-button @click="dialogVisible = false">取 消</el-button>
+        <el-button @click="isAddingNode = false">取 消</el-button>
         <el-button
           type="primary"
-          @click="dialogVisible = false">确 定</el-button>
+          @click="isAddingNode = false">确 定</el-button>
       </span>
     </el-dialog>
   </div>
@@ -39,9 +36,13 @@
 <script>
 import FlowGraph from './packages/flow-graph/index.vue';
 import * as Utils from './utils';
+
+import * as FlowUtils from './packages/flow-graph/utils';
 import GraphNav from './packages/flow-graph/nav.vue';
+import NodeForm from './nodeForm.vue';
 
 import configs from './configs';
+import creator from './creator';
 
 const data = require('./data.json');
 
@@ -52,11 +53,12 @@ export default {
   components: {
     FlowGraph,
     GraphNav,
+    NodeForm,
   },
 
   data() {
     return {
-      dialogVisible: false,
+      isAddingNode: false,
       actions: configs.actions,
       config: {
         width: 800,
@@ -64,7 +66,7 @@ export default {
         nodeSize: 40,
       },
       scenario: data.data,
-      graph: Utils.wrapScenario(data.data.scenes[0].graph),
+      graph: Utils.wrapScenario(data.data.graph),
       viewport: {
         x: 0,
         y: 0,
@@ -91,41 +93,93 @@ export default {
   },
 
   computed: {
-    graph2() {
-      // const unwraped = Utils.wrapScenario(this.scenario.graph);
-      const unwraped = Utils.wrapScenario(this.scenario.scenes[0].graph);
-      return unwraped;
-    },
-
     payloads() {
       return this.scenario.scenes[0].quizList;
     },
   },
   methods: {
+    onSave() {
+      const r = Utils.unwrapToScenario(this.graph);
+      console.log(r);
+    },
     onAction(action) {
       console.log('onAction', action);
       if (action.action === 'create') {
-        this.onCreate(action.context);
+        this.onCreateNode(action.context);
+        return;
+      }
+      if (action.context.type === 'node') {
+        if (action.action === 'info') {
+          this.onInfoNode(action);
+        } else if (action.action === 'delete') {
+          this.onDeleteNode(action.context);
+        }
+      } else if (action.context.type === 'line') {
+        if (action.action === 'info') {
+          this.onInfoEdge(action);
+        } else if (action.action === 'delete') {
+          this.onDeleteEdge(action.context);
+        }
       }
     },
-    onCreate(context) {
-      // dialogs;//
-      // 选择节点类型，
-      // 填写表单
-      // 创建节点
-      // 添加到graph中
-      const node = {
-        component: configs.components[0],
-        label: 'new node',
-        metadata: {
-          x: context.x - 72 / 2, y: context.y - 72 / 2, width: 72, height: 72,
-        },
-      };
-      this.graph.nodes.push(node);
+    onDeleteEdge(context) {
+      const item = context.node;
+      const r = confirm('确定删除边吗');
+      if (r) {
+        let {
+          nodes, edges, lines, nodeMap,
+        } = this.graph;
+        edges = edges.filter(({ from, to }) => !(from.nodeElement.id === item.from.nodeElement.id && to.nodeElement.id === item.to.nodeElement.id));
+        lines = FlowUtils.buildLines({ edges, nodeMap }, { nodeWidth: 72, nodeHeight: 72 });
+        this.graph = {
+          ...this.graph, nodes, edges, lines,
+        };
+      }
     },
-    updateMap(data) {
-      console.log('updateMap', data);
-      this.viewport = { ...this.viewport, ...data };
+    onInfoEdge(action) {
+      console.log('onInfoEdge');
+    },
+    onDeleteNode(context) {
+      const item = context.node;
+      const r = confirm('确定删除吗');
+      if (r) {
+        let {
+          nodes, edges, lines, nodeMap,
+        } = this.graph;
+        nodes = nodes.filter(node => node.id !== item.id);
+        edges = edges.filter(({ from, to }) => from.nodeElement.id !== item.id && to.nodeElement.id !== item.id);
+        lines = FlowUtils.buildLines({ edges, nodeMap }, { nodeWidth: 72, nodeHeight: 72 });
+        this.graph = {
+          ...this.graph, nodes, edges, lines,
+        };
+      }
+    },
+    onInfoNode(action) {
+      console.log('onInfoNode');
+    },
+    onCreateNode(context) {
+      const message = <NodeForm key={Date.now()} />;
+      creator({ title: '添加节点', message }).then((rs) => {
+        console.log(rs);
+        const node = {
+          component: configs.components.find(item => item.name === rs.component),
+          id: `${rs.component}_${this.graph.nodes.length}`,
+          metadata: {
+            label: rs.name,
+            description: rs.description,
+            x: context.x - 72 / 2,
+            y: context.y - 72 / 2,
+            width: 72,
+            height: 72,
+          },
+        };
+        this.graph.nodes.push(node);
+      });
+    },
+
+    updateMap(option) {
+      // console.log('updateMap', option);
+      this.viewport = { ...this.viewport, ...option };
       this.options.viewrectangle = [this.viewport.x * -1, this.viewport.y * -1, this.viewport.windowWidth, this.viewport.windowHeight];
       this.options.viewscale = this.viewport.scale;
     },
@@ -139,6 +193,11 @@ export default {
   position: absolute;
   width: 100%;
   height: 100%;
+}
+.dialog-node-form{
+  .el-dialog{
+    width: 600px;
+  }
 }
 
 </style>

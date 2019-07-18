@@ -22,6 +22,7 @@ module.exports = {
     "sourceType": "module"
   },
   "rules": {
+    "react/jsx-filename-extension": [1, { "extensions": [".js", ".jsx", ".vue"] }],
     "indent": [
       "error",
       2
@@ -50,7 +51,7 @@ module.exports = {
       }
     ],
     "react/jsx-filename-extension": [
-      1, 
+      1,
       { "extensions": [".js", ".jsx"] }
     ],
     "react/react-in-jsx-scope":[

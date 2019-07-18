@@ -35,56 +35,27 @@
       class="icon node-icon drag">{{ fontIcon }}</text>
     <g class="inports">
       <!-- v-for -->
-      <g
+      <vue-graph-inport
         v-for="(inport,index) of inports"
         :key="inport.name"
-        :data-index="index"
-        :title="inport.name"
+        :node="node"
+        :highlight="highlightPort && highlightPort.isIn"
         :transform="inportPosition(inport,index)"
-        class="port arrow"
-        @click="(e) => edgeStart(e, 'inport')">
-        <circle
-          r="5"
-          class="port-circle-bg" />
-        <path
-          d="M 4 0 A 4 4 0 0 0 -4 0"
-          class="port-arc"
-        />
-        <circle
-          :class="`route${node.metadata.route}`"
-          class="port-circle-small fill "
-          r="2.5"/>
-        <text
-          y="6"
-          class="port-label drag"
-          style="font-size: 5.625px;">{{ inport.name }}</text>
-      </g>
+        @click="(e) => edgeStart(e, 'inport')"
+      />
     </g>
     <g class="outports">
       <!-- v-for  -->
-      <g
+      <vue-graph-outport
         v-for="(outport,index) of outports"
         :title="outport.naame"
         :key="outport.name"
+        :node="node"
+        :highlight="highlightPort && highlightPort.isIn==false"
         :transform="outportPosition(outport,index)"
-        class="port arrow"
-        @click="(e) => edgeStart(e, 'outport')">
-        <circle
-          r="5"
-          class="port-circle-bg"/>
-        <path
-          d="M -4 0 A 4 4 0 0 0 4 0"
-          class="port-arc"
-        />
-        <circle
-          :class="`route${node.metadata.route}`"
-          class="port-circle-small fill route9"
-          r="2.5"/>
-        <text
-          y="-6"
-          style="font-size: 5.625px;"
-          class="port-label drag">{{ outport.name }}</text>
-      </g>
+        @click="(e) => edgeStart(e, 'outport')"
+      />
+
     </g>
     <g class="node-label-bg">
       <rect
@@ -124,12 +95,25 @@
 
 <script>
 import FontAwesomeSVG from './font-awesome-unicode-map';
+import VueGraphInport from './inport.vue';
+import VueGraphOutport from './outport.vue';
 
 let index = 0;
 
 export default {
   name: 'VueGraphNode',
+  components: {
+    VueGraphInport,
+    VueGraphOutport,
+  },
   props: {
+    highlightPort: {
+      type: Object,
+      default() {
+        return {};
+      },
+    },
+
     library: {
       type: Object,
       default() {
@@ -361,6 +345,17 @@ export default {
     fill: #fff;
     text-anchor: middle;
     dominant-baseline: central;
+  }
+  &:hover{
+    .node-border {
+      stroke: #808080;
+    }
+    .node-rect {
+      fill: rgba(230,238,240,0.97);
+    }
+    .port-arc {
+        fill: #808080;
+    }
   }
   .node-bg {
     opacity: 0;

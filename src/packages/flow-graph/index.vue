@@ -27,34 +27,12 @@
       >
         <g class="graph">
           <g class="groups">
-            <g
-              v-for="(item,index) of groups"
-              :key="index"
-              transform="translate(-40,-60)"
-              class="group">
-              <rect
-                :x="item.metadata.limits.minX"
-                :y="item.metadata.limits.minY"
-                :width="item.metadata.limits.width"
-                :height="item.metadata.limits.height"
-                class="group-box color0"
-                rx="8"
-                ry="8"/>
-              <text
-                :x="item.metadata.limits.minX+10"
-                :y="item.metadata.limits.minY+10"
-                class="group-label">{{ item.name }}</text>
-              <text
-                :x="item.metadata.limits.minX+10"
-                :y="item.metadata.limits.minY+30"
-                class="group-description">{{ item.metadata.description }}</text>
-              <rect
-                :x="item.metadata.limits.minX"
-                :y="item.metadata.limits.minY"
-                class="eventcatcher drag"
-                width="144"
-                height="48"/>
-            </g>
+            <vue-graph-group
+              v-for="item of groups"
+              :group="item"
+              :key="item.name"
+            />
+
           </g>
           <g class="iips"/>
 
@@ -80,6 +58,7 @@
               :library="libraryMap"
               :scale="state.scale"
               :key="item.id"
+              :highlight-port="state.highlightPort"
               @context-menu="doShowContextMenu"
               @edge-start="edgeStart"
             />
@@ -178,6 +157,7 @@ export default {
       zoomX: 0,
       zoomY: 0,
       state: {
+        highlightPort: {},
         currentMovingNode: '',
         minZoom: 0.15,
         maxZoom: 15.0,
@@ -211,7 +191,6 @@ export default {
       return this.graph.lines;
     },
     groups() {
-      console.log('groups', this.graph);
       return this.graph.groups;
     },
     nodes() {
@@ -266,14 +245,19 @@ export default {
         this.emitUpdate();
       });
     },
-    edgeStart(data) {
+    edgeStart(data = {
+      x: 0, y: 0, type: 'inport', node: {},
+    }) {
+      console.log('edgeStart', data);
       if (!this.isEdgePreview) {
         this.edgePreviewType = data.type;
         this.isEdgePreview = true;
         this.startNode = data.node;
+        this.state.highlightPort = { type: 'all', isIn: data.type === 'outport' };
         window.addEventListener('mousemove', e => this.mousemove(e, data));
       } else if (this.edgePreviewType !== data.type) {
         this.isEdgePreview = false;
+        this.state.highlightPort = {};
         this.edgePreviewType = '';
         this.mousemoveover(data);
       }
@@ -319,6 +303,7 @@ export default {
     cancelEdgeStart() {
       if (this.isEdgePreview) {
         this.isEdgePreview = false;
+        this.state.highlightPort = {};
         this.edgePreviewType = '';
         this.previewLine = {};
       }
@@ -376,12 +361,17 @@ export default {
       this.canShowMenu = true;
     },
     onMenuAction(action) {
-      const { x, y } = this.menuContext;
+      const { x, y, type } = this.menuContext;
       const { scale } = this.state;
       const tx = (x - this.state.x) / scale;
       const ty = (y - this.state.y) / scale;
 
-      this.$emit('action', { ...action, context: { x: tx, y: ty } });
+      this.$emit('action', {
+        ...action,
+        context: {
+          type, node: this.menuContext.item, x: tx, y: ty,
+        },
+      });
       this.canShowMenu = false;
     },
     emitUpdate() {
@@ -560,7 +550,7 @@ export default {
     },
 
     renderCanvas() {
-      console.log('renderCanvas');
+      // console.log('renderCanvas');
       const c = this.bgContext;
       // Comment this line to go plaid
       c.clearRect(0, 0, this.state.width, this.state.height);

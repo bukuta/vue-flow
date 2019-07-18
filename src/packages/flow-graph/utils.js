@@ -255,7 +255,11 @@ function buildLines(graph, option) {
         break;
       }
 
-      return buildLine({ x: sourceX, y: sourceY }, { x: targetX, y: targetY }, option);
+      return {
+        ...buildLine({ x: sourceX, y: sourceY }, { x: targetX, y: targetY }, option),
+        from,
+        to,
+      };
     });
   return lines;
 }

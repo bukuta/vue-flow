@@ -61,7 +61,7 @@ function styleFromTheme(theme) {
 }
 
 function renderThumbnail(context, graph, properties) {
-  console.log('renderThumbnail');
+  // console.log('renderThumbnail');
   // Reset origin
   context.setTransform(1, 0, 0, 1, 0, 0);
   // Clear
@@ -186,6 +186,7 @@ function renderThumbnail(context, graph, properties) {
   // Draw nodes
   toDraw.forEach((node) => {
     const x = Math.round(node.metadata.x * scale);
+
     const y = Math.round(node.metadata.y * scale);
 
     // Outer circle
@@ -219,7 +220,9 @@ function renderThumbnail(context, graph, properties) {
   };
 }
 
-module.exports = {
-  render: renderThumbnail,
+
+export {
+// module.exports = {
+  renderThumbnail as render,
   styleFromTheme,
 };
