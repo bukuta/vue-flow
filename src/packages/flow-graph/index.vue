@@ -215,8 +215,11 @@ export default {
     },
   },
   watch: {
-    state() {
-      this.renderCanvas();
+    state: {
+      deep: true,
+      handler() {
+        this.renderCanvas();
+      },
     },
   },
 
@@ -253,7 +256,9 @@ export default {
         this.edgePreviewType = data.type;
         this.isEdgePreview = true;
         this.startNode = data.node;
-        this.nodeData = data;
+
+        this.nodeData = { ...data, ...this.screenPosition2StagePosition(data) };
+
         window.addEventListener('mousemove', this.mousemove);
         this.state.highlightPort = { type: 'all', isIn: data.type === 'outport' };
       } else if (this.edgePreviewType !== data.type) {
@@ -272,7 +277,7 @@ export default {
       }
 
 
-      const startPosition = this.screenPosition2StagePosition({ x: this.nodeData.x, y: this.nodeData.y });
+      const startPosition = { x: this.nodeData.x, y: this.nodeData.y };
       const endPosition = this.screenPosition2StagePosition({ x, y });
 
       if (this.poiontsDistance(startPosition, endPosition) < 1) {
@@ -285,6 +290,15 @@ export default {
     },
     mousemoveover(data) {
       console.log(this.previewLine);
+      const fromId = this.startNode.id;
+      const toId = data.node.id;
+
+      const found = this.graph.edges.find(({ from, to }) => from.nodeElement.id === fromId && to.nodeElement.id === toId);
+      if (found) {
+        console.warn('found.edge');
+        return;
+      }
+
       const edge = {
         description: null,
         from: {
