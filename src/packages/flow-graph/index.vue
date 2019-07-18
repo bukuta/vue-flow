@@ -315,7 +315,6 @@ export default {
       return { x: tx, y: ty };
     },
     requestShowContextMenu(e) {
-      console.log('showContext', e);
       // Don't show native context menu
       e.preventDefault();
 
@@ -351,7 +350,6 @@ export default {
       });
     },
     doShowContextMenu(data) {
-      console.log('doShowContextMenu', data);
       const nodeType = data.type;
       this.menuContext = {
         ...this.menuContext,
@@ -383,7 +381,6 @@ export default {
       });
     },
     updateNode(id, props) {
-      // console.log('updateNode', id, props);
       const targetNode = this.graph.nodes.find(node => node.id === id);
       targetNode.metadata = { ...targetNode.metadata, ...props.metadata };
       this.updateGraph();
@@ -484,7 +481,6 @@ export default {
       this.state = { ...this.state, trackStartX: null, trackStartY: null };
     },
     onPanScale() {
-      console.log('onPanScale');
       // Pass pan/scale out to the-graph
       if (this.config.onPanScale) {
         this.config.onPanScale(this.state.x, this.state.y, this.state.scale);
@@ -495,7 +491,6 @@ export default {
     onWheel(event) {
       // Don't bounce
       event.preventDefault();
-      console.log('onWheel', event);
 
       if (!this.zoomFactor) { // WAT
         this.zoomFactor = 0;
@@ -550,7 +545,6 @@ export default {
     },
 
     renderCanvas() {
-      // console.log('renderCanvas');
       const c = this.bgContext;
       // Comment this line to go plaid
       c.clearRect(0, 0, this.state.width, this.state.height);

@@ -153,7 +153,7 @@ export default {
 
   computed: {
     eventCatcherRadius() {
-      console.log(this.node.metadata.width, this.scale);
+      // console.log(this.node.metadata.width, this.scale);
       return this.node.metadata.width * 12 / this.scale;
     },
     nodeTransform() {
@@ -197,7 +197,7 @@ export default {
   watch: {
     'rootState.currentMovingNode': function watchCurrentMovingNode() {
       if (this.rootState.currentMovingNode !== this.node.id) {
-        console.log('currentMovingNode', this.rootState.currentMovingNode, this.node.id);
+        // console.log('currentMovingNode', this.rootState.currentMovingNode, this.node.id);
         this.moving = false;
       }
     },
@@ -211,7 +211,7 @@ export default {
       from: 'rootUpdateNode',
       default() {
         return function defaultRootUpdateNode(id, props) {
-          console.log('defaultRootUpdateNode,', id, props);
+          // console.log('defaultRootUpdateNode,', id, props);
         };
       },
     },
@@ -240,7 +240,7 @@ export default {
       });
     },
     requestShowContextMenu(e) {
-      console.log('requestShowContextMenu', e);
+      // console.log('requestShowContextMenu', e);
       // Don't show native context menu
       e.preventDefault();
 
@@ -296,7 +296,7 @@ export default {
       e.preventDefault();
       this.moving = true;
       this.rootState.currentMovingNode = this.node.id;
-      console.log('onPanStart', e);
+      // console.log('onPanStart', e);
     },
 
     onPanMove(e) {
@@ -313,7 +313,7 @@ export default {
       const scale = this.scale;
       const deltaX = Math.round(movementX / scale);
       const deltaY = Math.round(movementY / scale);
-      console.log('onPanMove', x, y, ',lasatTrack:', lastTrackX, lastTrackY, ',movement:', movementX, movementY, ',scale:', scale, ',del:', movementX / scale, movementY / scale, ', delta:', deltaX, deltaY);
+      // console.log('onPanMove', x, y, ',lasatTrack:', lastTrackX, lastTrackY, ',movement:', movementX, movementY, ',scale:', scale, ',del:', movementX / scale, movementY / scale, ', delta:', deltaX, deltaY);
       this.rootUpdateNode(this.node.id, { metadata: { x: this.node.metadata.x + deltaX, y: this.node.metadata.y + deltaY } });
     },
     onPanEnd(e) {
@@ -322,13 +322,13 @@ export default {
       e.preventDefault();
       this.moving = false;
       this.state = { ...this.state, lastTrackX: 0, lastTrackY: 0 };
-      console.log('onPanEnd', e);
+      // console.log('onPanEnd', e);
     },
     onPanCancel(e) {
       e.stopPropagation();
       e.stopImmediatePropagation();
       e.preventDefault();
-      console.log('onPanCancel', e);
+      // console.log('onPanCancel', e);
     },
 
   },

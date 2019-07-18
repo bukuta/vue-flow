@@ -185,7 +185,7 @@ function assambleGraph(graph, option = { nodeWidth: 72, nodeHeight: 72 }) {
   };
 }
 function updateNode(graph, option = { nodeWidth: 72, nodeHeight: 72 }) {
-  console.log('updateNode');
+  // console.log('updateNode');
   const { nodes, edges } = graph;
   const nodeMap = {};
   nodes.forEach((item) => {
