@@ -253,8 +253,9 @@ export default {
         this.edgePreviewType = data.type;
         this.isEdgePreview = true;
         this.startNode = data.node;
+        this.nodeData = data;
+        window.addEventListener('mousemove', this.mousemove);
         this.state.highlightPort = { type: 'all', isIn: data.type === 'outport' };
-        window.addEventListener('mousemove', e => this.mousemove(e, data));
       } else if (this.edgePreviewType !== data.type) {
         this.isEdgePreview = false;
         this.state.highlightPort = {};
@@ -262,7 +263,7 @@ export default {
         this.mousemoveover(data);
       }
     },
-    mousemove(e, data) {
+    mousemove(e) {
       let x = e.x || e.clientX || 0;
       let y = e.y || e.clientY || 0;
       if (e.touches && e.touches.length) {
@@ -270,10 +271,17 @@ export default {
         y = e.touches[0].clientY;
       }
 
-      const startPosition = this.screenPosition2StagePosition({ x: data.x, y: data.y });
+
+      const startPosition = this.screenPosition2StagePosition({ x: this.nodeData.x, y: this.nodeData.y });
       const endPosition = this.screenPosition2StagePosition({ x, y });
 
+      if (this.poiontsDistance(startPosition, endPosition) < 1) {
+        return;
+      }
       this.previewLine = buildLine(startPosition, endPosition);
+    },
+    poiontsDistance(startPosition, endPosition) {
+      return (((startPosition.x - endPosition.x) ** 2) + ((startPosition.y - endPosition.y) ** 2)) ** 0.5;
     },
     mousemoveover(data) {
       console.log(this.previewLine);
@@ -297,6 +305,7 @@ export default {
           port: data.type === 'outport' ? 'out' : 'in',
         },
       };
+      window.removeEventListener('mousemove', this.mousemove);
       this.graph.lines.push(this.previewLine);
       this.graph.edges.push(edge);
     },
@@ -306,6 +315,8 @@ export default {
         this.state.highlightPort = {};
         this.edgePreviewType = '';
         this.previewLine = {};
+        this.nodeData = {};
+        window.removeEventListener('mousemove', this.mousemove);
       }
     },
     screenPosition2StagePosition({ x, y }) {
