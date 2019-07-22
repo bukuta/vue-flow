@@ -186,7 +186,7 @@
 
 <script>
 /* eslint-disable max-len */
-import FONT_AWESOME from '../../font-awesome-unicode-map.js';
+import FONT_AWESOME from './font-awesome-unicode-map';
 
 export default {
   name: 'GraphMenu',

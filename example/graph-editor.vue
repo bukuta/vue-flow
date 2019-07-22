@@ -34,11 +34,11 @@
 </template>
 
 <script>
-import FlowGraph from './packages/flow-graph/index.vue';
+import FlowGraph from '$src/index.vue';
 import * as Utils from './utils';
 
-import * as FlowUtils from './packages/flow-graph/utils';
-import GraphNav from './packages/flow-graph/nav.vue';
+import * as FlowUtils from '$src/utils';
+import GraphNav from '$src/nav.vue';
 import NodeForm from './nodeForm.vue';
 
 import configs from './configs';

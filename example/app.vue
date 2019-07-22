@@ -11,7 +11,7 @@
 </template>
 
 <script>
-import FlowGraph from './packages/flow-graph/index.vue';
+import FlowGraph from '$src/index.vue';
 import Editor from './graph-editor.vue';
 
 export default {
